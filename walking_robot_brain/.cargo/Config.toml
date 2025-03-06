@@ -1,0 +1,4 @@
+[env]
+RUST_LOG = "walking_robot_brain=DEBUG"
+[build]
+target-dir = "../target/brain"
