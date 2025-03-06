@@ -1,0 +1,216 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\assets\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|solutionrelative:assets\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|d:\\users\\public\\projetos\\unityprojects\\walking_robot_env\\assets\\bipedalrobotlimbs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|solutionrelative:assets\\bipedalrobotlimbs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\assets\\motor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|solutionrelative:assets\\motor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\assets\\followplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|solutionrelative:assets\\followplayer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\assets\\foot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A3E3E29-E1A2-17E2-A94F-AB7A3A338F16}|Assembly-CSharp.Player.csproj|solutionrelative:assets\\foot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\BipedalRobotHeadSensors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\BipedalRobotHeadSensors.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 821,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Game.cs",
+              "DocumentMoniker": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\Game.cs",
+              "RelativeDocumentMoniker": "Assets\\Game.cs",
+              "ToolTip": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\Game.cs",
+              "RelativeToolTip": "Assets\\Game.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAuwB8AAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-26T02:25:45.291Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "BipedalRobotHeadSensors.cs",
+              "DocumentMoniker": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\BipedalRobotHeadSensors.cs",
+              "RelativeDocumentMoniker": "Assets\\BipedalRobotHeadSensors.cs",
+              "ToolTip": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\BipedalRobotHeadSensors.cs",
+              "RelativeToolTip": "Assets\\BipedalRobotHeadSensors.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-26T02:28:03.675Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BipedalRobotLimbs.cs",
+              "DocumentMoniker": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\BipedalRobotLimbs.cs",
+              "RelativeDocumentMoniker": "Assets\\BipedalRobotLimbs.cs",
+              "ToolTip": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\BipedalRobotLimbs.cs",
+              "RelativeToolTip": "Assets\\BipedalRobotLimbs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEAAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-26T02:28:06.109Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FollowPlayer.cs",
+              "DocumentMoniker": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\FollowPlayer.cs",
+              "RelativeDocumentMoniker": "Assets\\FollowPlayer.cs",
+              "ToolTip": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\FollowPlayer.cs",
+              "RelativeToolTip": "Assets\\FollowPlayer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-04T01:17:59.252Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{de1fc918-f32e-4dd7-a915-1792a051f26b}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{c9c0ae26-aa77-11d2-b3f0-0000f87570ee}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Foot.cs",
+              "DocumentMoniker": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\Foot.cs",
+              "RelativeDocumentMoniker": "Assets\\Foot.cs",
+              "ToolTip": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\Foot.cs",
+              "RelativeToolTip": "Assets\\Foot.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBEAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-04T20:43:21.274Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Motor.cs",
+              "DocumentMoniker": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\Motor.cs",
+              "RelativeDocumentMoniker": "Assets\\Motor.cs",
+              "ToolTip": "D:\\Users\\Public\\projetos\\UnityProjects\\walking_robot_env\\Assets\\Motor.cs",
+              "RelativeToolTip": "Assets\\Motor.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAuwDAAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-04T20:38:27.99Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 656,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:3:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 350,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 247,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{605322a2-17ae-43f4-b60f-766556e46c87}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{28836128-fc2c-11d2-a433-00c04f72d18a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{ecb7191a-597b-41f5-9843-03a4cf275dde}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{be4d7042-ba3f-11d2-840e-00c04f9902c1}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{a0c5197d-0ac7-4b63-97cd-8872a789d233}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
