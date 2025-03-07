@@ -1,2 +1,3 @@
-brain/*
 !brain/release/walking_robot_brain.exe
+brain/*
+models/

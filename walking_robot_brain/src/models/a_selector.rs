@@ -14,7 +14,7 @@ pub struct ASelectorConfig{
 
 impl ASelectorConfig{
    pub fn init<B: Backend>(&self, dev: &<B as Backend>::Device ) -> ASelector<B>{
-		let init = Uniform { min: -0.5, max: 0.5 };
+		let init = Uniform { min: -1.0, max: 1.0 };
     	let a = 
         ASelector{
 			linear_0: LinearConfig::new(GameState::VALUES_COUNT, self.linear_layers_size[0]).with_initializer(init.clone()).init(dev),

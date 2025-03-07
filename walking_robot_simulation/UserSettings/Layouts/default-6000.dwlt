@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 1037
   m_ShowMode: 4
-  m_Title: Inspector
+  m_Title: Build Profiles
   m_RootView: {fileID: 4}
   m_MinSize: {x: 875, y: 332}
   m_MaxSize: {x: 10000, y: 10000}
@@ -74,7 +74,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 145
+  controlID: 95
   draggingID: 0
 --- !u!114 &4
 MonoBehaviour:
@@ -172,7 +172,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 144
+  controlID: 94
   draggingID: 0
 --- !u!114 &8
 MonoBehaviour:
@@ -262,7 +262,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: SceneView
+  m_Name: BuildProfileWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -271,9 +271,9 @@ MonoBehaviour:
     y: 0
     width: 1010
     height: 981
-  m_MinSize: {x: 52, y: 76}
+  m_MinSize: {x: 727, y: 426}
   m_MaxSize: {x: 4002, y: 4026}
-  m_ActualView: {fileID: 18}
+  m_ActualView: {fileID: 16}
   m_Panes:
   - {fileID: 18}
   - {fileID: 21}
@@ -281,8 +281,8 @@ MonoBehaviour:
   - {fileID: 16}
   - {fileID: 14}
   - {fileID: 13}
-  m_Selected: 0
-  m_LastSelected: 2
+  m_Selected: 3
+  m_LastSelected: 5
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -561,7 +561,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 421
     y: 79
-    width: 894
+    width: 1008
     height: 955
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -1315,7 +1315,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 48e7ffff8ee7ffff3ce9ffff26fbffff44800000568000007a8000007e80000092800000
+      m_ExpandedIDs: f6ebffff3aecffffe8edffff26fbffff568000007e800000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1607,7 +1607,7 @@ MonoBehaviour:
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
   m_LastInspectedObjectInstanceID: -1
-  m_LastVerticalScrollValue: 330
+  m_LastVerticalScrollValue: 475
   m_GlobalObjectId: 
   m_InspectorMode: 0
   m_LockTracker:
