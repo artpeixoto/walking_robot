@@ -47,16 +47,16 @@ async fn async_main(){
     let mut rs_estimator: RsEstimator<B> = {
         let mut model = 
             RsEstimatorConfig{
-                state_layers_size: [80, 80], 
-                action_layers_size: [80, 80],
-                joint_layers_size: [100,100,100],
-                logic: [100,100],
-                cut_through: 80,
-                end: [120, 80] , 
-                // [80; 3], 
-                // [80; 2], 
+                state_layers_size: [1000, 1000], 
+                action_layers_size: [1000, 1000],
+                joint_layers_size: [2000,2000,2000],
+                logic: [2000,2000],
+                cut_through: 2000,
+                end: [3000, 1000] , 
+                // [8000; 3], 
+                // [8000; 2], 
                 // 100, 
-                // [80; 2] 
+                // [8000; 2] 
             }
             .init(&dev);
 
@@ -69,10 +69,10 @@ async fn async_main(){
     let mut v_estimator = {
         let mut model = 
             VEstimatorConfig::new(
-                [80, 80, 80], 
-                [80, 80], 
-                [80, 80], 
-                [80, 80] 
+                [1000, 1000, 1000], 
+                [1000, 1000], 
+                [1000, 1000], 
+                [1000, 1000] 
             )
             .init(&dev);
 
@@ -86,10 +86,10 @@ async fn async_main(){
     let mut a_selector = {
         let mut model = 
             ASelectorConfig::new(
-                [80, 80, 80, 80], 
-                [80, 80, 80], 
-                [80, 80], 
-                [80, 80, 80, 80] 
+                [1000, 1000, 1000, 1000], 
+                [1000, 1000, 1000], 
+                [1000, 1000],
+                [1000, 1000, 1000, 1000] 
             )
             .init(&dev);
         if !start_from_beggining{
@@ -109,12 +109,11 @@ async fn async_main(){
 
     let alpha = 0.95;
 
-    let mut application_loop = 0 ;
 
     info!("waiting for connection, baby");
     let mut rng = rand::rng();
     let mut simulation = SimulationConnector::new().connect().await;
-    if !start_from_beggining{ 
+    if start_from_beggining{ 
         info!("No models were found. A first batch of learning from random actions will start"); 
 
         let mut histories = Vec::new();
@@ -124,40 +123,78 @@ async fn async_main(){
             };
             histories.push(simulation.run_episode(policy).await);
         }
-
         info!("starting learning batch..."); 
-        for history in &histories{
-            debug!("rs_estimator will start learning");
+        for (_ix, history) in histories.iter().enumerate(){
+            debug!("training rs_estimator ");
             rs_estimator = rs_estimator.train(&history, rs_est_lr, &mut rs_est_opt, &mut MseLoss::new(), &dev);           
-
-            // debug!("v_estimator will start learning with monte carlo");
-            // v_estimator = v_estimator.monte_carlo_train(&history, alpha, v_est_mc_lr, &mut v_est_mc_opt, &mut MseLoss::new(), &dev);
-
-            // debug!("v_estimator will start learning with td");
-            // v_estimator = v_estimator.td_train(&history, &rs_estimator, &a_selector, alpha, 20, 10, 2, v_est_td_lr, &mut v_est_td_opt, &mut MseLoss::new(), &dev);
-
-            debug!("a_selector will start learning");
-            a_selector = a_selector.train(&history, &rs_estimator, 1000, &v_estimator, &mut a_sel_opt, &mut MseLoss::new(), alpha, a_sel_lr, &dev);
         }            
         info!("saving models...");
         rs_estimator.clone().save_file(rs_estimator_model_path.clone(), &recorder).unwrap();
         v_estimator.clone().save_file(v_estimator_model_path.clone(), &recorder).unwrap();
         a_selector.clone().save_file(a_selector_model_path.clone(), &recorder).unwrap();
+
+        const INITIAL_TRAINING_LOOP_COUNT:usize = 100;
+        info!("Starting training");
+        for initial_training_loop in 0..INITIAL_TRAINING_LOOP_COUNT{
+            info!("Collecting episodes...");
+            let mut histories = Vec::new();
+            for _ in 0..10{
+                let policy = |state| {
+                    if rng.random::<f32>() < ( initial_training_loop as f32 / INITIAL_TRAINING_LOOP_COUNT as f32){
+                        a_selector.select_action(&state, &dev)
+                    } else {
+                        GameAction::random(&mut rng)
+                    }
+                };
+                let history = simulation.run_episode(policy).await;
+
+                histories.push(history);     
+            }
+
+            for history in histories.into_iter(){
+                info!("training rs_estimator ");
+                rs_estimator = rs_estimator.train(&history, rs_est_lr, &mut rs_est_opt, &mut MseLoss::new(), &dev);
+
+                info!("training v_estimator with monte carlo");
+                v_estimator = v_estimator.monte_carlo_train(&history, alpha, v_est_mc_lr, &mut v_est_mc_opt, &mut MseLoss::new(), &dev);
+
+                info!("training v_estimator with td");
+                v_estimator = v_estimator.td_train(&history, &rs_estimator, &a_selector, alpha, 20, 10, 5, v_est_td_lr, &mut v_est_td_opt, &mut MseLoss::new(), &dev);
+
+                info!("training a_selector");
+                a_selector = a_selector.train(&history, &rs_estimator, 100, &v_estimator, &mut a_sel_opt, &mut MseLoss::new(), alpha, a_sel_lr, &dev);
+            }
+        } 
     }
 
     '_MAIN_TRAIN_LOOP: loop {          
-        let mut histories = VecDeque::new();
+        let mut histories = Vec::new();
         info!("Collecting episodes...");
-        for _ in 0..10{
-            let policy = |state| {
-                a_selector.select_action(&state, &dev)
-            };
-            let history = simulation.run_episode(policy).await;
 
-            histories.push_front(history);     
+        for _ in 0..10{
+            let history = simulation.run_episode({
+                let mut steps = 0;
+                let dev = &dev;
+                let rng = &mut rng;
+                let a_selector = &a_selector;
+
+                move |s|{ 
+                    let a = if steps > 10 { // 1 second
+                        a_selector.select_action(&s, dev)
+                    } else {
+                        GameAction::random(rng)
+                    };
+                    
+                    steps += 1;
+
+                    a
+                }
+            })
+            .await;
+            histories.push(history)
         }
 
-        for history in histories.into_iter(){
+        for history in histories{
             info!("training rs_estimator ");
             rs_estimator = rs_estimator.train(&history, rs_est_lr, &mut rs_est_opt, &mut MseLoss::new(), &dev);
 
@@ -168,15 +205,13 @@ async fn async_main(){
             v_estimator = v_estimator.td_train(&history, &rs_estimator, &a_selector, alpha, 20, 10, 5, v_est_td_lr, &mut v_est_td_opt, &mut MseLoss::new(), &dev);
 
             info!("training a_selector");
-            a_selector = a_selector.train(&history, &rs_estimator, 1000, &v_estimator, &mut a_sel_opt, &mut MseLoss::new(), alpha, a_sel_lr, &dev);
+            a_selector = a_selector.train(&history, &rs_estimator, 100, &v_estimator, &mut a_sel_opt, &mut MseLoss::new(), alpha, a_sel_lr, &dev);
         }
-
         info!("saving models...");
         rs_estimator.clone().save_file(rs_estimator_model_path.clone(), &recorder).unwrap();
         v_estimator.clone().save_file(v_estimator_model_path.clone(), &recorder).unwrap();
         a_selector.clone().save_file(a_selector_model_path.clone(), &recorder).unwrap();
         
-        application_loop += 1;
     }
 }
 

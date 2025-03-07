@@ -2187,11 +2187,11 @@ ArticulationBody:
   m_SwingZ: 2
   m_Twist: 1
   m_XDrive:
-    lowerLimit: 0
-    upperLimit: 0
+    lowerLimit: -20
+    upperLimit: 20
     stiffness: 0
     damping: 0
-    forceLimit: 15
+    forceLimit: 70
     target: 0
     targetVelocity: 0
     driveType: 2
@@ -2243,7 +2243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Axis: 0
-  MaxSpeed: 0
+  MaxSpeed: 20
   Invert: 0
   Input: 0
 --- !u!33 &4369701566674503331
@@ -2322,11 +2322,11 @@ ArticulationBody:
   m_SwingZ: 2
   m_Twist: 1
   m_XDrive:
-    lowerLimit: 0
-    upperLimit: 0
+    lowerLimit: -20
+    upperLimit: 20
     stiffness: 0
     damping: 0
-    forceLimit: 15
+    forceLimit: 70
     target: 0
     targetVelocity: 0
     driveType: 2
@@ -2378,7 +2378,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Axis: 0
-  MaxSpeed: 0
+  MaxSpeed: 20
   Invert: 0
   Input: 0
 --- !u!23 &5761332514301091431
