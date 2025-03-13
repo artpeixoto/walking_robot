@@ -3,11 +3,12 @@ use std::time::Duration;
 use tokio::time::timeout;
 use tracing::{debug, info, trace};
 
-use crate::{comm::SimulationEndpoint, types::{action::GameAction, history::History, state::{GameState, GameUpdate}}};
+use crate::{comm::SimulationEndpoint, types::{history::History, policy::Policy, state::GameUpdate}};
 
 impl SimulationEndpoint{
-	pub async fn run_episode<'this, 'gay_state>(&'this mut self, mut policy: impl FnMut(GameState) -> GameAction + 'this) -> History{
-        let mut history = Vec::new();
+	pub async fn run_episode<'this, 'state>(&'this mut self,  policy: &mut impl Policy) -> History{
+        info!("Running episode");
+        let mut history = History::default();
 
         let (mut previous_state, _previous_reward) = 'WAIT_FIRST_STATE: loop  {match self.recv_sim_update().await {
             GameUpdate::GameStarted => {continue 'WAIT_FIRST_STATE;},
@@ -33,10 +34,12 @@ impl SimulationEndpoint{
                 },
             };
 
-            history.push( (previous_state, previous_action, reward));
+            history.states.push( previous_state);
+            history.actions.push( previous_action);
+            history.rewards.push( reward);
 
             debug!("picking action");
-            let action = policy(state.clone());
+            let action = policy.select_action(&state);
             trace!("action is: {action:?}");
 
 	        debug!("sending action");

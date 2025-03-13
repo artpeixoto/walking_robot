@@ -1307,7 +1307,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 26.991467
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1318,8 +1318,8 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
+  m_HDR: 0
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -1541,12 +1541,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9447fccdbdb9f4c8c5e10237a80850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DurationBetweenUpdates: 0.1
+  DurationBetweenUpdates: 0.02
   HeadSensors: {fileID: 7244448175315979565}
   Actuators: {fileID: 7244448175315979564}
   Target: {fileID: 464485452}
   GameSpeedSlider: {fileID: 794422783}
-  EpisodeDuration: 10
+  EpisodeDuration: 15
 --- !u!4 &1429690627
 Transform:
   m_ObjectHideFlags: 0

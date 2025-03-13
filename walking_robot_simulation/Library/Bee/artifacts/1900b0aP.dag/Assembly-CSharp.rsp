@@ -332,10 +332,12 @@
 "Assets/FollowPlayer.cs"
 "Assets/Foot.cs"
 "Assets/Game.cs"
-"Assets/GetGaySpeed.cs"
+"Assets/GetGameSpeed.cs"
+"Assets/LimbLink.cs"
 "Assets/Motor.cs"
 "Assets/RobotSensors.cs"
 "Assets/Target.cs"
+"Assets/TransformDataReader.cs"
 -langversion:9.0
 /deterministic
 /optimize+

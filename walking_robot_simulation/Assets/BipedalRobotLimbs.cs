@@ -23,6 +23,16 @@ public struct Limb
                 Thigh = this.ThighMotor.GetMotorPosition(),
                 Shin = this.ShinMotor.GetMotorPosition(),
             },
+            JointSpeeds = new LimbJointSpeeds{
+                Shoulder = this.ShoulderMotor.GetMotorSpeed(),
+                Thigh = this.ThighMotor.GetMotorSpeed(),
+                Shin = this.ShinMotor.GetMotorSpeed(),           
+            },
+            JointAccs = new LimbJointAccs{
+                Shoulder = this.ShoulderMotor.GetMotorAcc(),
+                Thigh = this.ThighMotor.GetMotorAcc(),
+                Shin = this.ShinMotor.GetMotorAcc(),           
+            },
             JointForces = new LimbJointForces {
                 Shoulder = this.ShoulderMotor.GetJointForce(),
                 Thigh = this.ThighMotor.GetJointForce(),
@@ -80,6 +90,7 @@ public struct LimbJointPositions
     public float Shoulder;
     public float Thigh;
     public float Shin;
+
     public override string ToString()
 => @$"LimbJointPositions{{ 
     Shoulder: {Shoulder.ToString().Replace("\n", "\n\t")},
@@ -87,7 +98,34 @@ public struct LimbJointPositions
     Shin: {Thigh.ToString().Replace("\n", "\n\t")}
 }}";
 }
+[Serializable]
+public struct LimbJointSpeeds
+{
+    public float Shoulder;
+    public float Thigh;
+    public float Shin;
 
+    public override string ToString()
+=> @$"LimbJointSpeeds{{ 
+    Shoulder: {Shoulder.ToString().Replace("\n", "\n\t")},
+    Thigh: {Thigh.ToString().Replace("\n", "\n\t")},
+    Shin: {Shin.ToString().Replace("\n", "\n\t")}
+}}";
+}
+
+[Serializable]
+public struct LimbJointAccs{
+    public float Shoulder;
+    public float Thigh;
+    public float Shin;
+
+    public override string ToString()
+=> @$"LimbJointAccs{{ 
+    Shoulder: {Shoulder.ToString().Replace("\n", "\n\t")},
+    Thigh: {Thigh.ToString().Replace("\n", "\n\t")},
+    Shin: {Shin.ToString().Replace("\n", "\n\t")}
+}}";
+}
 
 [Serializable]
 public struct LimbJointForces
@@ -107,6 +145,8 @@ public struct LimbJointForces
 public struct LimbReading
 {
     public LimbJointPositions   JointPositions;
+    public LimbJointSpeeds      JointSpeeds;
+    public LimbJointAccs        JointAccs;
     public LimbJointForces      JointForces;
 
     public bool  IsFootTouchingFloor;
@@ -155,3 +195,14 @@ public class BipedalRobotLimbs : MonoBehaviour
 }
 
 
+public struct TransformData{
+
+    public Vector3 LinearPos;
+    public Vector3 LinearSpeed; 
+    public Vector3 LinearAcc;
+
+    public Vector3 AngularAcc;
+    public Vector3 AngularSpeed;
+    public Vector3 AngularPos;
+
+}

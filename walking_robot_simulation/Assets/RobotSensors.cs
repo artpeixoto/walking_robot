@@ -84,7 +84,8 @@ public class RobotHeadSensors : MonoBehaviour
             LocalTargetDir = TargetDir,
             TargetDist = TargetDistance,
             UpOrientation = this.GetUpOrientation(),
-            LocalSpeed = this.GetSpeed(),
+            LocalLinearSpeed = this.GetSpeed(),
+            LocalAngularSpeed = this.previousLinearVelocity,
             LocalLinearAcceleration = this.linearAcceleration,
             LocalAngularAcceleration = this.angularAcceleration,
         };
@@ -124,12 +125,16 @@ public struct SerdeVector3
 [Serializable]
 public struct HeadSensorsReading
 {
-    public SerdeVector2  LocalTargetDir;
+    public SerdeVector2     LocalTargetDir;
     public float            TargetDist;
     public SerdeVector3     UpOrientation;
     public float            FloorDist;
-    public SerdeVector3     LocalSpeed;
+
+
+    public SerdeVector3     LocalLinearSpeed;
     public SerdeVector3     LocalLinearAcceleration;
+
+    public SerdeVector3     LocalAngularSpeed;
     public SerdeVector3     LocalAngularAcceleration;
     public override String ToString() => 
 $@"HeadSensorsReading {{ 
@@ -137,7 +142,7 @@ $@"HeadSensorsReading {{
     TargetDist: {TargetDist},
     UpOrientation: {UpOrientation},
     FloorDist: {FloorDist},
-    LocalSpeed: {LocalSpeed},
+    LocalSpeed: {LocalLinearSpeed},
     LocalLinearAcceleration:  {LocalLinearAcceleration},
     LocalAngularAcceleration: {LocalAngularAcceleration},
 }}";

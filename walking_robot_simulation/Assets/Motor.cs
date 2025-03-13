@@ -29,13 +29,23 @@ public class Motor : MonoBehaviour
         parent = this.gameObject.transform.parent.GetComponent<ArticulationBody>();
     }
 
+    public float GetMotorAcc(){
+        Debug.Log($"Joint acceleration is {jointAcceleration}");
+        return jointAcceleration;
+    }
 
+    public float GetMotorSpeed()
+    {
+        Debug.Log($"Joint speed is {jointSpeed}");
+        return jointSpeed;
+    }
     public float GetMotorPosition()
     {
-        var jointPositions = this.body.jointPosition;
-        Debug.Log($"JointPosition is [{jointPositions[0]}]");
-        return this.body.jointPosition[ 0 ];
+        var jointPositions = this.jointPosition;
+        Debug.Log($"JointPosition is [{jointPositions}]");
+        return jointPositions;
     }
+
     public float GetJointForce()
     {
         //var accumulatedTorque = new List<float>();
@@ -48,10 +58,24 @@ public class Motor : MonoBehaviour
     {
         this.body.SetDriveTarget(ArticulationDriveAxis.X , this.Input * this.MaxSpeed );
     }
+
+    float jointPosition;
+    float jointSpeed;
+    float jointAcceleration;
+    void UpdateJointStuff(){
+        var newJointPosition = this.body.jointPosition[0];
+        var newJointSpeed    = (newJointPosition - jointPosition )/ Time.fixedDeltaTime;
+        var newJointAcc      = (newJointSpeed - jointSpeed) / Time.fixedDeltaTime;
+        jointPosition = newJointPosition;
+        jointSpeed= newJointSpeed;
+        jointAcceleration = newJointAcc;
+    }
     Vector3 forces;
+
     void FixedUpdate()
     {
         ApplyForces(Time.fixedDeltaTime);
+        UpdateJointStuff();
         forces = this.body.GetAccumulatedForce();
     }
 }

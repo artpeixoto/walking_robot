@@ -19,7 +19,7 @@ public class Game : MonoBehaviour
     public Target               Target;
     public Slider               GameSpeedSlider;
     public float                EpisodeDuration = 10;
-    public static float         SimulationSpeed = 3.0f;
+    public static float         SimulationSpeed = 1.0f;
     float startTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -147,7 +147,7 @@ public struct GameState
 {
     public bool                 IsFinished;
     public HeadSensorsReading   HeadSensorsReading;
-    public BipedalLimbsReading         LimbsReading;
+    public BipedalLimbsReading  LimbsReading;
     public override string ToString() =>
 $@"GameState{{
     IsFinished: {IsFinished},
@@ -168,7 +168,7 @@ public class RewardCalculator
     float previousTime = 0.0f; 
     public float RewardForNotStanding = -100.0f;
     public float RewardForHittingHead = -1000.0f;
-    public float RewardPerMeterCloserToTarget = 500.0f;
+    public float RewardPerMeterCloserToTarget = 100.0f;
     public float CorrectDistanceToFloor = 0.60f;
     public float MaxDistanceToFloorDiff = 0.65f;
 
@@ -180,7 +180,6 @@ public class RewardCalculator
     }
     public float CalculateReward(GameState gameState)
     {
-
         var now = Time.time;
         var rewardDeltaTime = now - previousTime;
         //var uprightError = 1 - gameState.HeadSensorsReading.UpOrientation.y;

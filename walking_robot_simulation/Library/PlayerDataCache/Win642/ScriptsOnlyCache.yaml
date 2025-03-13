@@ -121,47 +121,47 @@ ScriptsOnlyBuild:
     - Class: 108
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 9208}
+      Script: {instanceID: 9214}
     - Class: 114
-      Script: {instanceID: 9248}
+      Script: {instanceID: 9254}
     - Class: 114
-      Script: {instanceID: 9510}
+      Script: {instanceID: 9516}
     - Class: 114
-      Script: {instanceID: 9796}
+      Script: {instanceID: 9804}
     - Class: 114
-      Script: {instanceID: 10040}
+      Script: {instanceID: 10048}
     - Class: 114
-      Script: {instanceID: 10524}
+      Script: {instanceID: 10532}
     - Class: 114
-      Script: {instanceID: 10724}
+      Script: {instanceID: 10732}
     - Class: 114
-      Script: {instanceID: 11204}
+      Script: {instanceID: 11212}
     - Class: 114
-      Script: {instanceID: 11224}
+      Script: {instanceID: 11232}
     - Class: 114
-      Script: {instanceID: 11748}
+      Script: {instanceID: 11756}
     - Class: 114
-      Script: {instanceID: 12044}
+      Script: {instanceID: 12052}
     - Class: 114
-      Script: {instanceID: 13016}
+      Script: {instanceID: 13024}
     - Class: 114
-      Script: {instanceID: 13300}
+      Script: {instanceID: 13308}
     - Class: 114
-      Script: {instanceID: 13678}
+      Script: {instanceID: 13686}
     - Class: 114
-      Script: {instanceID: 13808}
+      Script: {instanceID: 13816}
     - Class: 114
-      Script: {instanceID: 13942}
+      Script: {instanceID: 13950}
     - Class: 114
-      Script: {instanceID: 14074}
+      Script: {instanceID: 14082}
     - Class: 114
-      Script: {instanceID: 14200}
+      Script: {instanceID: 14208}
     - Class: 114
-      Script: {instanceID: 14386}
+      Script: {instanceID: 14394}
     - Class: 114
-      Script: {instanceID: 15072}
+      Script: {instanceID: 15080}
     - Class: 114
-      Script: {instanceID: 15140}
+      Script: {instanceID: 15148}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -199,6 +199,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.InputSystem
     namespaceName: UnityEngine.InputSystem.OnScreen
     className: OnScreenStick
+  - hash:
+      serializedVersion: 2
+      Hash: 6bc8d20ab7adf4b5080a1c641e5ceb65
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: LimbLink
   - hash:
       serializedVersion: 2
       Hash: 9aef93e6b7b213b90536498bfbd105d1
@@ -247,6 +253,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.InputSystem
     namespaceName: UnityEngine.InputSystem.Editor
     className: InputActionImporterEditor
+  - hash:
+      serializedVersion: 2
+      Hash: bf11b5fd14a5d15c103538eca0d937c9
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: TransformDataReader
   - hash:
       serializedVersion: 2
       Hash: e6f8333cc8a800e2866870a5ef7efc35

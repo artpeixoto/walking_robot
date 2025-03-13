@@ -1,38 +1,21 @@
-use std::{array, iter, mem::take, sync::LazyLock};
-
 use burn::{
-    config::Config,
     module::Module,
-    nn::{
-        loss::{HuberLoss, HuberLossConfig, MseLoss},
-        Gelu, LeakyRelu, LeakyReluConfig, Linear, LinearConfig, Sigmoid, Tanh,
-    },
-    optim::{GradientsParams, Optimizer},
     prelude::Backend,
-    record::Record,
-    tensor::{backend::AutodiffBackend, Distribution::Uniform, DistributionSampler, Float, Tensor},
-    train::metric::{LossInput, LossMetric},
+    tensor::Tensor,
 };
 use itertools::Itertools;
 use nalgebra::{Vector2, Vector3};
-use rand::{
-    distr::{
-        uniform::{UniformFloat, UniformSampler},
-        weighted::WeightedIndex,
-        Distribution, StandardUniform,
-    },
-    rngs::ThreadRng,
-    Rng,
-};
-use tracing::{debug, info};
+use rand::distr::{
+        uniform::UniformSampler,
+        Distribution,
+    };
 
 use crate::{
     tools::UsedInTrait,
     types::{
         action::{BipedalLimbsActivation, GameAction, LimbActivation},
         state::{
-            BipedalLimbsReading, GameState, LimbJointsForces, LimbJointsPositions, LimbReading,
-            Reward, SensorsReading,
+            BipedalLimbsReading, GameState, LimbJointsAccs, LimbJointsForces, LimbJointsPositions, LimbJointsSpeeds, LimbReading, SensorsReading
         },
     },
 };
@@ -167,6 +150,7 @@ where
     }
 }
 
+
 impl TensorConvertible for GameState {
     const VALUES_COUNT: usize = SensorsReading::VALUES_COUNT + BipedalLimbsReading::VALUES_COUNT;
     fn iterate_values<'a>(&'a self) -> impl Iterator<Item = f32> + 'a {
@@ -204,6 +188,8 @@ impl TensorConvertible for LimbReading {
     const VALUES_COUNT: usize = 1
         + LimbJointsPositions::VALUES_COUNT
         + LimbJointsForces::VALUES_COUNT
+        + LimbJointsSpeeds::VALUES_COUNT
+        + LimbJointsAccs::VALUES_COUNT
         + Vector3::VALUES_COUNT;
 
     fn iterate_values<'a>(&'a self) -> impl Iterator<Item = f32> + 'a {
@@ -214,6 +200,8 @@ impl TensorConvertible for LimbReading {
         }]
         .into_iter()
         .chain(self.positions.iterate_values())
+        .chain(self.speeds.iterate_values())
+        .chain(self.accs.iterate_values())
         .chain(self.forces.iterate_values())
         .chain(self.force_applied_by_floor.iterate_values())
     }
@@ -224,6 +212,8 @@ impl TensorConvertible for LimbReading {
         Self {
             is_foot_touching_floor: values_iter.next().unwrap() > 0.5,
             positions: TensorConvertible::take_from_iter(&mut values_iter),
+            speeds: TensorConvertible::take_from_iter(&mut values_iter),
+            accs: TensorConvertible::take_from_iter(&mut values_iter),
             forces: TensorConvertible::take_from_iter(&mut values_iter),
             force_applied_by_floor: TensorConvertible::take_from_iter(&mut values_iter),
         }
@@ -261,8 +251,40 @@ impl TensorConvertible for LimbJointsPositions {
         }
     }
 }
+
+
+impl TensorConvertible for LimbJointsSpeeds{
+    const VALUES_COUNT: usize = 3;
+
+    fn iterate_values<'a>(&'a self) -> impl Iterator<Item = f32> + 'a {
+        [self.shoulder, self.thigh, self.shin].into_iter()
+    }
+
+    fn from_values(values: &[f32]) -> Self {
+        Self {
+            shoulder: values[0],
+            thigh: values[1],
+            shin: values[2],
+        }
+    }
+}
+impl TensorConvertible for LimbJointsAccs{
+    const VALUES_COUNT: usize = 3;
+
+    fn iterate_values<'a>(&'a self) -> impl Iterator<Item = f32> + 'a {
+        [self.shoulder, self.thigh, self.shin].into_iter()
+    }
+
+    fn from_values(values: &[f32]) -> Self {
+        Self {
+            shoulder: values[0],
+            thigh: values[1],
+            shin: values[2],
+        }
+    }
+}
 impl TensorConvertible for SensorsReading {
-    const VALUES_COUNT: usize = 16;
+    const VALUES_COUNT: usize = 19;
 
     fn iterate_values<'a>(&'a self) -> impl Iterator<Item = f32> + 'a {
         [
@@ -271,9 +293,12 @@ impl TensorConvertible for SensorsReading {
             self.up_orientation[0],
             self.up_orientation[1],
             self.up_orientation[2],
-            self.speed[0],
-            self.speed[1],
-            self.speed[2],
+            self.linear_speed[0],
+            self.linear_speed[1],
+            self.linear_speed[2],
+            self.angular_speed[0],
+            self.angular_speed[1],
+            self.angular_speed[2],
             self.target_direction[0],
             self.target_direction[1],
             self.linear_acceleration[0],
@@ -292,7 +317,8 @@ impl TensorConvertible for SensorsReading {
             floor_distance: values_iter.next().unwrap(),
             target_distance: values_iter.next().unwrap(),
             up_orientation: Vector3::take_from_iter(&mut values_iter),
-            speed: Vector3::take_from_iter(&mut values_iter),
+            linear_speed: Vector3::take_from_iter(&mut values_iter),
+            angular_speed: Vector3::take_from_iter(&mut values_iter),
             target_direction: Vector2::take_from_iter(&mut values_iter),
             linear_acceleration: Vector3::take_from_iter(&mut values_iter),
             angular_acceleration: Vector3::take_from_iter(&mut values_iter),

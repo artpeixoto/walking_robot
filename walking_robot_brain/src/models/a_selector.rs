@@ -1,6 +1,6 @@
-use burn::{config::Config, module::Module, nn::{Gelu, Initializer::Uniform, Linear, LinearConfig, Lstm, LstmConfig, Sigmoid, Tanh}, prelude::Backend, tensor::Tensor};
+use burn::{config::Config, module::Module, nn::{Gelu, InstanceNorm, InstanceNormConfig, Linear, LinearConfig, Tanh}, prelude::Backend, tensor::Tensor};
 
-use crate::{tensor_conversion::TensorConvertible, tools::UsedInTrait, types::{action::GameAction, state::GameState}};
+use crate::{modules::forward_module::ForwardModule, tensor_conversion::TensorConvertible, tools::UsedInTrait, types::{action::GameAction, policy::{HasDevice, TensorPolicy}, state::GameState}};
 
 #[derive(Config)]
 pub struct ASelectorConfig{
@@ -14,40 +14,40 @@ pub struct ASelectorConfig{
 
 impl ASelectorConfig{
    pub fn init<B: Backend>(&self, dev: &<B as Backend>::Device ) -> ASelector<B>{
-		let init = Uniform { min: -1.0, max: 1.0 };
     	let a = 
         ASelector{
-			linear_0: LinearConfig::new(GameState::VALUES_COUNT, self.linear_layers_size[0]).with_initializer(init.clone()).init(dev),
+			norm: InstanceNormConfig::new(GameState::VALUES_COUNT).init(dev),
+			linear_0: LinearConfig::new(GameState::VALUES_COUNT, self.linear_layers_size[0]).init(dev),
 			act_0: Gelu,
-			linear_1: LinearConfig::new(self.linear_layers_size[0], self.linear_layers_size[1]).with_initializer(init.clone()).init(dev),
+			linear_1: LinearConfig::new(self.linear_layers_size[0], self.linear_layers_size[1]).init(dev),
 			act_1: Gelu,
-			linear_2: LinearConfig::new(self.linear_layers_size[1], self.linear_layers_size[2]).with_initializer(init.clone()).init(dev),
+			linear_2: LinearConfig::new(self.linear_layers_size[1], self.linear_layers_size[2]).init(dev),
 			act_2: Gelu,
-			linear_3: LinearConfig::new(self.linear_layers_size[2], self.linear_layers_size[3]).with_initializer(init.clone()).init(dev),
+			linear_3: LinearConfig::new(self.linear_layers_size[2], self.linear_layers_size[3]).init(dev),
 			act_3: Gelu,
 
-			logic_linear_0: LinearConfig::new(self.linear_layers_size[3], self.logic_layers_size[0]).with_initializer(init.clone()).init(dev),
+			logic_linear_0: LinearConfig::new(self.linear_layers_size[3], self.logic_layers_size[0]).init(dev),
 			logic_act_0: Tanh,
-			logic_linear_1: LinearConfig::new(self.logic_layers_size[0], self.logic_layers_size[1]).with_initializer(init.clone()).init(dev),
+			logic_linear_1: LinearConfig::new(self.logic_layers_size[0], self.logic_layers_size[1]).init(dev),
 			logic_act_1: Tanh,
-			logic_linear_2: LinearConfig::new(self.logic_layers_size[1], self.logic_layers_size[2]).with_initializer(init.clone()).init(dev),
+			logic_linear_2: LinearConfig::new(self.logic_layers_size[1], self.logic_layers_size[2]).init(dev),
 			logic_act_2: Tanh,
 
 
-			cut_through_linear_0: LinearConfig::new(self.linear_layers_size[3], self.cut_through_layers_size[0]).with_initializer(init.clone()).init(dev),
+			cut_through_linear_0: LinearConfig::new(self.linear_layers_size[3], self.cut_through_layers_size[0]).init(dev),
 			cut_through_act_0: Gelu,
-			cut_through_linear_1: LinearConfig::new(self.cut_through_layers_size[0], self.cut_through_layers_size[1]).with_initializer(init.clone()).init(dev),
+			cut_through_linear_1: LinearConfig::new(self.cut_through_layers_size[0], self.cut_through_layers_size[1]).init(dev),
 			cut_through_act_1: Gelu,
 
-			end_linear_0:LinearConfig::new(self.logic_layers_size[2] + self.cut_through_layers_size[1],   self.end[0]).with_initializer(init.clone()).init(dev), 
+			end_linear_0:LinearConfig::new(self.logic_layers_size[2] + self.cut_through_layers_size[1],   self.end[0]).init(dev), 
 			end_act_0: Gelu,
-			end_linear_1:LinearConfig::new(self.end[0], self.end[1]).with_initializer(init.clone()).init(dev), 
+			end_linear_1:LinearConfig::new(self.end[0], self.end[1]).init(dev), 
 			end_act_1: Gelu,
-			end_linear_2:LinearConfig::new(self.end[1], self.end[2]).with_initializer(init.clone()).init(dev), 
+			end_linear_2:LinearConfig::new(self.end[1], self.end[2]).init(dev), 
 			end_act_2: Gelu,
-			end_linear_3:LinearConfig::new(self.end[2], self.end[3]).with_initializer(init.clone()).init(dev), 
+			end_linear_3:LinearConfig::new(self.end[2], self.end[3]).init(dev), 
 			end_act_3: Gelu,
-			end_linear_4:LinearConfig::new(self.end[3], GameAction::VALUES_COUNT).with_initializer(init.clone()).init(dev), 
+			end_linear_4:LinearConfig::new(self.end[3], GameAction::VALUES_COUNT).init(dev), 
 			end_act_4: Tanh,
         };
         a.forward(&Tensor::zeros([1, GameState::VALUES_COUNT], dev));
@@ -56,6 +56,9 @@ impl ASelectorConfig{
 }
 #[derive(Module, Debug)]
 pub struct ASelector<B: Backend>{
+	
+	norm: InstanceNorm<B>,
+
     linear_0: Linear<B>,
     act_0: Gelu,
     linear_1: Linear<B>,
@@ -72,6 +75,7 @@ pub struct ASelector<B: Backend>{
     logic_act_1: Tanh,
     logic_linear_2: Linear<B>,
     logic_act_2: Tanh,
+
 
     cut_through_linear_0: Linear<B>,
     cut_through_act_0: Gelu,
@@ -94,10 +98,29 @@ pub struct ASelector<B: Backend>{
     end_act_4: Tanh,
 }
 
+impl<'a, B: Backend> HasDevice for &'a ASelector<B>{
+	type B = B;
+
+	fn get_dev(&self) -> <Self::B as Backend>::Device {
+		self.devices()[0].clone()
+	}
+}
+
+impl<'a, B: Backend> TensorPolicy<B> for &'a ASelector<B>{
+	fn select_action_tensor(&mut self, states_tensor: Tensor<B,2>) -> Tensor<B,2> {
+		self.forward(&states_tensor)
+	}
+
+	// fn select_action(&mut self, state: &GameState) -> GameAction {
+	// }
+}
+
+
 impl<B: Backend> ASelector<B>{
     pub fn forward(&self, states_tensor: &Tensor<B, 2>) -> Tensor<B, 2>{
         let linear_x = 
 		 	states_tensor.clone()
+			// .used_in(|x| self.norm.forward(x))
 			.used_in(|x| self.linear_0.forward(x))
 			.used_in(|x| self.act_0.forward(x))
 			.used_in(|x| self.linear_1.forward(x))
@@ -142,7 +165,12 @@ impl<B: Backend> ASelector<B>{
 			;
         output
     }
-    pub fn select_action(&self, state: &GameState, dev: &<B as Backend>::Device) -> GameAction{
-        state.to_tensor(dev).unsqueeze_dim(0).used_in(|t| self.forward(&t)).squeeze(0).used_in(GameAction::from_tensor)
-    }
 }
+
+
+impl<B: Backend> ForwardModule<B> for ASelector<B>{
+	fn forward(&self, input: Tensor<B,2>) -> Tensor<B,2> {
+		self.forward(&input)
+	}
+}
+
