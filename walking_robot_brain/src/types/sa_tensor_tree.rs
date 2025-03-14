@@ -65,18 +65,18 @@ impl<'t, B: Backend> StateActionNodeView<'t, B>{
 	}
 
 	pub fn acc_reward(&self) -> f32{
-		match self.value{
+		match self.value {
 			Left(_) => 0.0,
 			Right(node) => node.acc_reward,
 		}
 	}
+	
 	pub fn depth(&self) -> i32{
 		match self.value{
 			Left(_) => 0,
 			Right(node) => node.depth,
 		}
 	}
-
 }
 
 pub struct SaTensorTree<B: Backend>
@@ -91,7 +91,11 @@ pub struct SaTensorTree<B: Backend>
 
 impl<B: Backend> SaTensorTree<B>
 {
-	pub fn new( root: GameStateTensor<B>, alpha: f32, dev: &<B as Backend>::Device) -> Self {
+	pub fn new( 
+		root	: GameStateTensor<B>, 
+		alpha	: f32, 
+		dev		: &<B as Backend>::Device
+	) -> Self {
 		Self { 
 			nodes		: BTreeMap::default(),
 			parents		: BTreeMap::default(),

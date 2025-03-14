@@ -1,10 +1,9 @@
 use std::{collections::BTreeMap, iter};
-
 use burn::{module::Module, prelude::Backend, tensor::{Int, Tensor}};
 use fix_float::ff32;
 use itertools::Itertools;
-
 use crate::{models::{rs_estimator::RsEstimator, v_estimator::VEstimator}, tensor_conversion::TensorConvertible, tools::UsedInTrait, types::{action::GameAction, policy::{HasDevice, MultiActionTensorPolicy}, sa_tensor_tree::{Id, SaTensorTree}, state::GameState}};
+
 
 pub struct TreeExpander<'a, B: Backend, P: MultiActionTensorPolicy<B>> {
     rs_estimator: &'a RsEstimator<B>,
@@ -98,7 +97,9 @@ impl<'a, B: Backend, P: MultiActionTensorPolicy<B>> TreeExpander<'a, B, P> {
 
 				let children_acc_rewards = children_rewards * reward_alphas ;
 
-				(children_acc_rewards.clone(), acc_rewards_tensor.unsqueeze_dim(1).repeat_dim(1, breadth) + children_acc_rewards + children_local_values * value_alphas)
+				(
+					children_acc_rewards.clone(), 
+					acc_rewards_tensor.unsqueeze_dim(1).repeat_dim(1, breadth) + children_acc_rewards + children_local_values * value_alphas)
 			};
 
 			let children_values = children_values.to_data().to_vec::<f32>().unwrap();

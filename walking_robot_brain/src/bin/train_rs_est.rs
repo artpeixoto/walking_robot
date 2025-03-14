@@ -40,9 +40,8 @@ async fn async_main(){
         } 
         model
     };
-    
+
     let rs_est_lr = 0.001;
-    
     
     let opt_config =
         AdamWConfig::new()
