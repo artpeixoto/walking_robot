@@ -1,7 +1,10 @@
 <linker>
 	<assembly fullname="Assembly-CSharp">
 		<type fullname="Limb" preserve="nothing" serialized="true"/>
-		<type fullname="MotorAxis" preserve="nothing" serialized="true"/>
+		<type fullname="MotorReading" preserve="nothing" serialized="true"/>
+		<type fullname="SerdeQuaternion" preserve="nothing" serialized="true"/>
+		<type fullname="SerdeVector3" preserve="nothing" serialized="true"/>
+		<type fullname="TransformReading" preserve="nothing" serialized="true"/>
 	</assembly>
 	<assembly fullname="Unity.InputSystem">
 		<type fullname="UnityEngine.InputSystem.InputAction" preserve="nothing" serialized="true"/>

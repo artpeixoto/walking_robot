@@ -5,8 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 public class Motor : MonoBehaviour
 {
-    public MotorAxis Axis;
     public float MaxSpeed = 15;
+    public float Jerk = 300;
     public bool Invert;
 
     [SerializeField]
@@ -20,6 +20,9 @@ public class Motor : MonoBehaviour
     {
         this.Input = value;
     }
+    public MotorReading GetReading(){
+        return this.MotorReading;
+    }
 
     ArticulationBody body;
     ArticulationBody parent;
@@ -28,74 +31,58 @@ public class Motor : MonoBehaviour
         body = GetComponent<ArticulationBody>();
         parent = this.gameObject.transform.parent.GetComponent<ArticulationBody>();
     }
-
-    public float GetMotorAcc(){
-        Debug.Log($"Joint acceleration is {jointAcceleration}");
-        return jointAcceleration;
-    }
-
-    public float GetMotorSpeed()
-    {
-        Debug.Log($"Joint speed is {jointSpeed}");
-        return jointSpeed;
-    }
-    public float GetMotorPosition()
-    {
-        var jointPositions = this.jointPosition;
-        Debug.Log($"JointPosition is [{jointPositions}]");
-        return jointPositions;
-    }
-
-    public float GetJointForce()
-    {
-        //var accumulatedTorque = new List<float>();
-        //body.GetAccumulatedTorque();
-        Debug.Log($"AccumulatedTorque is [{this.forces}]");
-        return forces[0];
-    }
     
-    void ApplyForces(float deltaTime)
+    [SerializeField]
+    float target = 0;
+    void applyInput(float deltaTime)
     {
-        this.body.SetDriveTarget(ArticulationDriveAxis.X , this.Input * this.MaxSpeed );
+        var targetTarget = this.Input * this.MaxSpeed;
+        var distanceToTarget = targetTarget - target;
+        var targetMaxDelta = deltaTime * this.Jerk;
+        float targetDelta = 
+            distanceToTarget >= 0 
+            ? Mathf.Min(targetMaxDelta, distanceToTarget) 
+            : Mathf.Max(-targetMaxDelta, distanceToTarget);
+        
+        target += targetDelta;
+
+        this.body.SetDriveTarget(ArticulationDriveAxis.X , target );
     }
 
-    float jointPosition;
-    float jointSpeed;
-    float jointAcceleration;
-    void UpdateJointStuff(){
-        var newJointPosition = this.body.jointPosition[0];
-        var newJointSpeed    = (newJointPosition - jointPosition )/ Time.fixedDeltaTime;
-        var newJointAcc      = (newJointSpeed - jointSpeed) / Time.fixedDeltaTime;
-        jointPosition = newJointPosition;
-        jointSpeed= newJointSpeed;
-        jointAcceleration = newJointAcc;
+    public MotorReading MotorReading;
+    void updateMotorReading(){
+        var newJointPosition    = this.body.jointPosition[0];
+        var newJointSpeed       = (newJointPosition - MotorReading.Pos)/ Time.fixedDeltaTime;
+        var newJointAcc         = (newJointSpeed - MotorReading.Speed) / Time.fixedDeltaTime;
+
+		var driveForces = new List<float>();
+        this.body.GetDriveForces(driveForces);
+        var driveForce = driveForces[0];
+
+        MotorReading = new MotorReading{
+            Pos     = newJointPosition,
+            Speed   = newJointSpeed,
+            Acc     = newJointAcc,
+        };
     }
+
     Vector3 forces;
 
     void FixedUpdate()
     {
-        ApplyForces(Time.fixedDeltaTime);
-        UpdateJointStuff();
+        applyInput(Time.fixedDeltaTime);
+        updateMotorReading();
         forces = this.body.GetAccumulatedForce();
     }
 }
 
 [Serializable]
-public enum MotorAxis
+public struct MotorReading
 {
-    X,Y,Z
+    public float Pos;
+    public float Speed;
+    public float Acc;
+    public float Torque;
 }
-public static class MotorAxisExts
-{
-    public static Vector3 GetVect(this MotorAxis _this)
-    {
-        switch (_this)
-        {
-            case MotorAxis.X: return Vector3.right;
-            case MotorAxis.Y: return Vector3.up;
-            case MotorAxis.Z: return Vector3.forward;
-            default: throw new NotImplementedException();
-        }
-    }
-}
+
 

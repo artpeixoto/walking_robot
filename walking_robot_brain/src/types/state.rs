@@ -1,77 +1,84 @@
-use nalgebra::{Vector2, Vector3};
+use nalgebra::{Quaternion, Vector, Vector2, Vector3};
 
+use crate::traits::{JsonExts, TryFromJson};
 
 pub type G = f32;
 pub type Reward = f32;
-pub struct GameStateAndReward{
-	pub game_state	: GameState,
-	pub reward		: f32,
+pub struct GameStateAndReward {
+    pub game_state: GameState,
+    pub reward: f32,
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct GameState{
-	pub sensors_reading: SensorsReading,
-	pub limbs_readings : BipedalLimbsReading
+pub struct GameState {
+    pub sensors_reading: SensorsReading,
+    pub limbs_readings: BipedalLimbsReading,
 }
 
-pub enum GameUpdate{
-	GameStarted,
-	GameStep{
-		state: GameState,
-		reward: f32,
-	}
+pub enum GameUpdate {
+    GameStarted,
+    GameStep { state: GameState, reward: f32 },
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct SensorsReading{
-	pub target_direction		: Vector2<f32>,
-	pub up_orientation			: Vector3<f32>,
-	pub target_distance			: f32,
-	pub floor_distance 			: f32,
-
-	pub linear_speed			: Vector3<f32>, 
-	pub angular_speed			: Vector3<f32>,
-	pub linear_acceleration		: Vector3<f32>,
-	pub angular_acceleration	: Vector3<f32>,
+pub struct SensorsReading {
+    pub target_pos      : Vector3<f32>,
+    pub floor_distance  : f32,
+    pub acc_reading     : AccelerometerReading,
+    pub forces          : Vec<Force>,
 }
 
-
-#[derive(Clone, PartialEq, Debug)]
-pub struct BipedalLimbsReading{
-	pub left: LimbReading,
-	pub right: LimbReading,	
+#[derive(Clone, PartialEq, Debug, Default)]
+pub struct Force{
+    pub pos     : Vector3<f32>,
+    pub force   : Vector3<f32>,
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct LimbJointsForces{
-	pub shoulder: f32,
-	pub thigh: f32,
-	pub shin: f32,
+pub struct BipedalLimbsReading {
+    pub left: LimbReading,
+    pub right: LimbReading,
 }
 #[derive(Clone, PartialEq, Debug)]
-pub struct LimbJointsPositions{
-	pub shoulder: f32,
-	pub thigh: f32,
-	pub shin: f32,
+pub struct LimbReading {
+	pub shoulder: LinkReading,
+	pub thigh	: LinkReading,
+	pub shin 	: LinkReading,
+	pub foot	: TransformReading,
 }
 #[derive(Clone, PartialEq, Debug)]
-pub struct LimbJointsSpeeds{
-	pub shoulder: f32,
-	pub thigh: f32,
-	pub shin: f32,
+pub struct LinkReading {
+    pub motor		: MotorReading,
+    pub transform	: TransformReading,
 }
+
+
 #[derive(Clone, PartialEq, Debug)]
-pub struct LimbJointsAccs{
-	pub shoulder: f32,
-	pub thigh: f32,
-	pub shin: f32,
+pub struct TransformReading {
+    pub linear_pos: Vector3<f32>,
+    pub linear_speed: Vector3<f32>,
+    pub linear_acc: Vector3<f32>,
+
+    pub angular_pos: Quaternion<f32>,
+    pub angular_speed: Vector3<f32>,
+    pub angular_acc: Vector3<f32>,
 }
+
+
+
 #[derive(Clone, PartialEq, Debug)]
-pub struct LimbReading{
-	pub forces					: LimbJointsForces,
-	pub positions				: LimbJointsPositions,
-	pub speeds					: LimbJointsSpeeds,
-	pub accs					: LimbJointsAccs,
-	pub is_foot_touching_floor	: bool,
-	pub force_applied_by_floor	: Vector3<f32>
+pub struct MotorReading {
+    pub pos: f32,
+    pub speed: f32,
+    pub acc: f32,
+    pub torque: f32,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct AccelerometerReading{
+	pub up				: Vector3<f32>,
+	pub linear_speed	: Vector3<f32>,
+	pub linear_acc		: Vector3<f32>,
+	pub angular_speed	: Vector3<f32>,
+	pub angular_acc		: Vector3<f32>,
 }

@@ -7,5 +7,6 @@ pub mod v_estimator_single_value;
 pub mod a_selector_from_tree_exp;
 pub mod execute_training;
 pub mod s_endec_train;
+pub mod q_estimator_monte_carlo;
 
 

@@ -1,6 +1,7 @@
 use std::str::from_utf8;
 
 use anyhow::{anyhow, bail};
+use itertools::Itertools;
 use json::JsonValue;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -13,8 +14,7 @@ use crate::{
     types::{
         action::{GameAction, LimbActivation},
         state::{
-            BipedalLimbsReading, GameState, GameStateAndReward, GameUpdate, LimbJointsAccs,
-            LimbJointsForces, LimbJointsPositions, LimbJointsSpeeds, LimbReading, SensorsReading,
+            AccelerometerReading, BipedalLimbsReading, Force, GameState, GameStateAndReward, GameUpdate, LimbReading, LinkReading, MotorReading, SensorsReading, TransformReading
         },
     },
 };
@@ -32,6 +32,7 @@ impl SimulationConnector {
             .await
             .unwrap()
             .0;
+        
         SimulationEndpoint { stream }
     }
 }
@@ -70,7 +71,9 @@ impl SimulationEndpoint {
         if &msg == b"GAME STARTED" {
             GameUpdate::GameStarted
         } else {
-            let msg = json::parse(from_utf8(&msg).unwrap()).unwrap();
+            let msg = from_utf8(&msg).unwrap();
+            debug!("msg is: {msg}");
+            let msg = json::parse(msg).unwrap();
             let GameStateAndReward { game_state, reward } = msg.try_as().unwrap();
             GameUpdate::GameStep {
                 state: game_state,
@@ -99,142 +102,120 @@ impl ToJson for LimbActivation {
         }
     }
 }
-impl TryFromJson for LimbReading {
+
+impl TryFromJson for GameStateAndReward {
     fn try_from_json(json: &JsonValue) -> Result<Self, anyhow::Error> {
-        let json = json.as_object().ok_or(anyhow!("aint no object"))?;
-        let is_foot_touching_floor = json.get("IsFootTouchingFloor").unwrap().as_bool().unwrap();
-        let force_applied_by_floor = json["ForceAppliedByFloor"].as_vector3().unwrap();
-        let positions = {
-            let json = json.get("JointPositions").unwrap().as_object().unwrap();
-
-            let shoulder_pos = json["Shoulder"]
-                .as_f32()
-                .ok_or(anyhow!("no shoulder pos reading"))?;
-            let thigh_pos = json["Thigh"]
-                .as_f32()
-                .ok_or(anyhow!("no thigh pos reading"))?;
-            let shin_pos = json["Shin"]
-                .as_f32()
-                .ok_or(anyhow!("no shin pos reading"))?;
-            LimbJointsPositions {
-                shoulder: shoulder_pos,
-                thigh: thigh_pos,
-                shin: shin_pos,
-            }
-        };
-        let forces = {
-            let json = json.get("JointForces").unwrap().as_object().unwrap();
-
-            let shoulder_pos = json["Shoulder"]
-                .as_f32()
-                .ok_or(anyhow!("no shoulder pos reading"))?;
-            let thigh_pos = json["Thigh"]
-                .as_f32()
-                .ok_or(anyhow!("no thigh pos reading"))?;
-            let shin_pos = json["Shin"]
-                .as_f32()
-                .ok_or(anyhow!("no shin pos reading"))?;
-            LimbJointsForces {
-                shoulder: shoulder_pos,
-                thigh: thigh_pos,
-                shin: shin_pos,
-            }
-        };
-        let speeds = {
-            let json = json.get("JointSpeeds").unwrap().as_object().unwrap();
-
-            let shoulder_pos = json["Shoulder"]
-                .as_f32()
-                .ok_or(anyhow!("no shoulder pos reading"))?;
-            let thigh_pos = json["Thigh"]
-                .as_f32()
-                .ok_or(anyhow!("no thigh speed reading"))?;
-            let shin_pos = json["Shin"]
-                .as_f32()
-                .ok_or(anyhow!("no shin speed reading"))?;
-            LimbJointsSpeeds {
-                shoulder: shoulder_pos,
-                thigh: thigh_pos,
-                shin: shin_pos,
-            }
-        };
-        let accs = {
-            let json = json.get("JointAccs").unwrap().as_object().unwrap();
-
-            let shoulder_pos = json["Shoulder"]
-                .as_f32()
-                .ok_or(anyhow!("no shoulder pos reading"))?;
-            let thigh_pos = json["Thigh"]
-                .as_f32()
-                .ok_or(anyhow!("no thigh speed reading"))?;
-            let shin_pos = json["Shin"]
-                .as_f32()
-                .ok_or(anyhow!("no shin speed reading"))?;
-            LimbJointsAccs {
-                shoulder: shoulder_pos,
-                thigh: thigh_pos,
-                shin: shin_pos,
-            }
-        };
-        Ok(LimbReading {
-            forces,
-            positions,
-            accs,
-            speeds,
-            is_foot_touching_floor,
-            force_applied_by_floor,
+        let json = json.as_object().unwrap();
+        Ok(GameStateAndReward { 
+            game_state  : json["State"].try_as().unwrap(), 
+            reward      : json["Reward"].as_f32().unwrap()
         })
     }
 }
-impl TryFromJson for GameStateAndReward {
-    fn try_from_json(json: &JsonValue) -> Result<Self, anyhow::Error> {
-        let JsonValue::Object(value) = json else {
-            bail!("fuck")
-        };
-        let reward = value
-            .get("Reward")
-            .ok_or(anyhow!("fuck"))?
-            .as_f32()
-            .unwrap();
-        let game_state = {
-            let obj = value.get("State").unwrap().as_object().unwrap();
-            let is_finished = obj.get("IsFinished").unwrap().as_bool().unwrap();
-            let sensors_reading = {
-                let obj = obj.get("HeadSensorsReading").unwrap().as_object().unwrap();
-
-                let target_direction = obj.get("LocalTargetDir").unwrap().as_vector2().unwrap();
-                let dist_from_target = obj.get("TargetDist").unwrap().as_f32().unwrap();
-                let floor_distance = obj.get("FloorDist").unwrap().as_f32().unwrap();
-                let up_orientation = obj["UpOrientation"].as_vector3().unwrap();
-                let speed = obj["LocalLinearSpeed"].as_vector3().unwrap();
-                let angular_speed = obj["LocalAngularSpeed"].as_vector3().unwrap();
-                let linear_acceleration = obj["LocalLinearAcceleration"].as_vector3().unwrap();
-                let angular_acceleration = obj["LocalAngularAcceleration"].as_vector3().unwrap();
-                SensorsReading {
-                    floor_distance,
-                    target_distance: dist_from_target,
-                    linear_speed: speed,
-                    target_direction,
-                    up_orientation,
-                    linear_acceleration,
-                    angular_acceleration,
-                    angular_speed,
-                }
-            };
-            let limbs_readings = {
-                let obj = obj["LimbsReading"].as_object().unwrap();
-                let left_limb_reading = obj["Left"].try_as::<LimbReading>().unwrap();
-                let right_limb_reading = obj["Right"].try_as::<LimbReading>().unwrap();
-                BipedalLimbsReading {
-                    left: left_limb_reading,
-                    right: right_limb_reading,
-                }
-            };
-            GameState {
-                sensors_reading,
-                limbs_readings,
-            }
-        };
-        Ok(GameStateAndReward { game_state, reward })
+impl TryFromJson for GameState{
+    fn try_from_json(json: &JsonValue) -> Result<Self, anyhow::Error>  {
+        let json = json.as_object().unwrap();
+        Ok(Self{
+            limbs_readings: json["LimbsReading"].try_as::<BipedalLimbsReading>().unwrap(),
+            sensors_reading:json["SensorsReading"].try_as().unwrap(),
+        })
     }
+}
+impl TryFromJson for BipedalLimbsReading{
+    fn try_from_json(json: &JsonValue) -> Result<Self, anyhow::Error>  {
+        let json = json.as_object().unwrap();
+        Ok(Self { 
+            left    : json["Left"].try_as().unwrap(), 
+            right   : json["Right"].try_as().unwrap(),
+        })
+    }
+}
+
+impl TryFromJson for SensorsReading{
+    fn try_from_json(json: &JsonValue) -> Result<Self, anyhow::Error>  {
+        let json = json.as_object().unwrap();
+        Ok(Self { 
+            target_pos      : json["TargetPos"].as_vector3().unwrap(), 
+            floor_distance  : json["FloorDist"].as_f32().unwrap(),
+            acc_reading     : json["AccelerometerReading"].try_as().unwrap(),
+            forces          : {
+                let JsonValue::Array(arr) = &json["Forces"] else {panic!()};
+
+                arr.iter()
+                    .map(|el| el.try_as::<Force>().unwrap())
+                    .collect_vec()
+            }
+        }) 
+    }
+}
+
+impl TryFromJson for LimbReading{
+	fn try_from_json(json: &json::JsonValue) -> Result<Self, anyhow::Error>  {
+		let json = json.as_object().unwrap();
+		Ok(LimbReading{
+			shoulder: json["ShoulderReading"]	.try_as().unwrap(),
+			thigh	: json["ThighReading"]		.try_as().unwrap(),
+			shin	: json["ShinReading"]		.try_as().unwrap(),
+			foot	: json["FootReading"]		.try_as().unwrap(),
+		})
+	}
+}
+impl TryFromJson for Force{
+    fn try_from_json(json: &JsonValue) -> Result<Self, anyhow::Error>  {
+        let json = json.as_object().unwrap();
+        Ok(Self{
+            pos  : json["Position"].as_vector3().unwrap(),
+            force: json["Force"].as_vector3().unwrap(),
+        })
+    }
+}
+
+impl TryFromJson for AccelerometerReading{
+    fn try_from_json(json: &JsonValue) -> Result<Self, anyhow::Error>  {
+        let json = json.as_object().unwrap();
+        Ok(AccelerometerReading{
+            linear_speed    : json["LinearSpeed"].as_vector3().unwrap(),
+            linear_acc      : json["LinearAcc"].as_vector3().unwrap(), 
+            angular_speed   : json["AngularSpeed"].as_vector3().unwrap(),
+            angular_acc     : json["AngularAcc"].as_vector3().unwrap(),
+            up              : json["UpOrientation"].as_vector3().unwrap(), 
+        })
+    }
+}
+
+impl TryFromJson for TransformReading {
+    fn try_from_json(json: &json::JsonValue) -> Result<Self, anyhow::Error> {
+        let json = json.as_object().unwrap();
+        Ok(Self {
+            linear_pos		: json["LinearPos"].as_vector3().unwrap(),
+            linear_speed	: json["LinearSpeed"].as_vector3().unwrap(),
+            linear_acc		: json["LinearAcc"].as_vector3().unwrap(),
+
+            angular_pos		: json["AngularPos"].as_quaternion().unwrap(), 
+            angular_speed	: json["AngularSpeed"].as_vector3().unwrap(),
+            angular_acc		: json["AngularAcc"].as_vector3().unwrap(),
+        })
+    }
+}
+
+impl TryFromJson for MotorReading {
+    fn try_from_json(json: &json::JsonValue) -> Result<Self, anyhow::Error> {
+        let json = json.as_object().unwrap();
+        Ok(Self {
+            acc: json["Acc"].as_f32().unwrap(),
+            pos: json["Pos"].as_f32().unwrap(),
+            speed: json["Speed"].as_f32().unwrap(),
+            torque: json["Torque"].as_f32().unwrap(),
+        })
+    }
+}
+
+impl TryFromJson for LinkReading{
+	fn try_from_json(json: &json::JsonValue) -> Result<Self, anyhow::Error>  {
+		let json = json.as_object().unwrap();
+		Ok(LinkReading { 
+			motor		: json["MotorReading"].try_as::<MotorReading>().unwrap(), 
+			transform	:  json["TransformReading"].try_as().unwrap(),
+		})
+	}
 }

@@ -1,5 +1,5 @@
 [env]
-RUST_LOG = "walking_robot_brain=INFO"
+RUST_LOG = "walking_robot_brain=INFO,train_q=INFO"
 
 [build]
 target-dir = "../target/brain"

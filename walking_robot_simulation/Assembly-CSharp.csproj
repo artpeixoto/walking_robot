@@ -69,6 +69,7 @@
     <Compile Include="Assets\FollowPlayer.cs" />
     <Compile Include="Assets\TransformDataReader.cs" />
     <Compile Include="Assets\BipedalRobotLimbs.cs" />
+    <Compile Include="Assets\ForcesReadingCollector.cs" />
     <Compile Include="Assets\Target.cs" />
     <Compile Include="Assets\Foot.cs" />
     <Compile Include="Assets\Motor.cs" />
@@ -76,6 +77,8 @@
     <Compile Include="Assets\GetGameSpeed.cs" />
     <Compile Include="Assets\RobotSensors.cs" />
     <Compile Include="Assets\ChangeSpeed.cs" />
+    <Compile Include="Assets\ForcesReader.cs" />
+    <Compile Include="Assets\Vector.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

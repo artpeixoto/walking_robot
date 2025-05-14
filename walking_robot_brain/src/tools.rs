@@ -26,15 +26,15 @@ where
 	B: Backend,
 	K: TensorKind<B> + BasicOps<B>,	
 {
-	fn windows(self, stack_size: i64) -> Self {
+	fn windows(self, window_size: i64) -> Self {
 		let input_size = *&self.dims()[0] as i64;
 		let mut layers = Vec::new();
-		for ix in 0..stack_size {
+		for ix in 0..window_size {
 			let layer = 
 				self
 				.clone()
 				.slice([
-					Some((ix, input_size - stack_size + ix + 1)), 
+					Some((ix, input_size - window_size + ix + 1)), 
 					None
 				]);
 			layers.push(layer);

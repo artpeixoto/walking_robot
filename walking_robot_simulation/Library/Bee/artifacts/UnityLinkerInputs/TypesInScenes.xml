@@ -3,11 +3,15 @@
 		<type fullname="BipedalRobotLimbs" preserve="nothing"/>
 		<type fullname="FollowPlayer" preserve="nothing"/>
 		<type fullname="Foot" preserve="nothing"/>
+		<type fullname="ForcesReader" preserve="nothing"/>
+		<type fullname="ForcesReadingsCollector" preserve="nothing"/>
 		<type fullname="Game" preserve="nothing"/>
-		<type fullname="GetGaySpeed" preserve="nothing"/>
+		<type fullname="GetGameSpeed" preserve="nothing"/>
+		<type fullname="LimbLink" preserve="nothing"/>
 		<type fullname="Motor" preserve="nothing"/>
 		<type fullname="RobotHeadSensors" preserve="nothing"/>
 		<type fullname="Target" preserve="nothing"/>
+		<type fullname="TransformReader" preserve="nothing"/>
 	</assembly>
 	<assembly fullname="Unity.InputSystem">
 		<type fullname="UnityEngine.InputSystem.InputActionAsset" preserve="nothing"/>

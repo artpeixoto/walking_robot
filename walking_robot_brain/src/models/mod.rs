@@ -10,4 +10,5 @@ pub mod v_estimator;
 pub mod a_selector;
 pub mod builders;
 pub mod sa_endec;
+pub mod q_estimator;
 

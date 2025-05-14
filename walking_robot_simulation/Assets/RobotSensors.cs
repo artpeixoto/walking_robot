@@ -1,21 +1,27 @@
 using System;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 public class RobotHeadSensors : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     ArticulationBody body;
+    ForcesReadingsCollector forcesCollector;
+
     public Target Target;
     public Transform Orientation;
+
 
     void Start()
     {
         this.body = this.GetComponent<ArticulationBody>();
+        this.forcesCollector = this.GetComponent<ForcesReadingsCollector>();
     }
 
     public Vector3 GetSpeed()
     {
-        return this.Orientation.worldToLocalMatrix * this.body.linearVelocity;
+        return this.Orientation.InverseTransformVector(this.body.linearVelocity);
     }    
 
     public Vector2 GetDirection()
@@ -35,19 +41,6 @@ public class RobotHeadSensors : MonoBehaviour
     {
         return this.Orientation.up;
     }
-    public (Vector2 Direction, float Distance) GetDifferenceToTargetInLocalCoordinates()
-    {
-        var diff = this.Target.gameObject.transform.position - this.transform.position;
-        var distance = diff.magnitude;
-
-        var localY = Vector3.Dot(this.Orientation.forward, diff);
-        var localX = Vector3.Dot(this.Orientation.right, diff);
-        var localDiff = new Vector2(localX, localY);
-        Debug.Log(localDiff);
-        var localDiffDir = localDiff.normalized;
-
-        return (localDiffDir, distance);
-    }
 
     public float GetDistanceToFloor()
     {
@@ -56,94 +49,61 @@ public class RobotHeadSensors : MonoBehaviour
         else
             return float.PositiveInfinity;
     }
+    public Vector3 GetTargetPos(){
+        return this.Orientation.InverseTransformPoint(this.Target.transform.position);
+    }
 
-
-    Vector3 previousLinearVelocity;
-    Vector3 previousAngularVelocity;
+    Vector3 linearVelocity;
+    Vector3 angularVelocity;
 
     Vector3 linearAcceleration;
     Vector3 angularAcceleration;
 
     public void FixedUpdate()
     {
-        var linearVelocity = transform.InverseTransformVector(  this.body.linearVelocity);
-        linearAcceleration = (linearVelocity - previousLinearVelocity) / Time.fixedDeltaTime;
-        previousLinearVelocity = linearVelocity;
+        var newLinearVelocity = transform.InverseTransformVector(  this.body.linearVelocity);
+        linearAcceleration = (newLinearVelocity - this.linearVelocity) / Time.fixedDeltaTime;
+        linearVelocity = newLinearVelocity;
 
-        var angularVelocity = transform.InverseTransformVector(this.body.angularVelocity);
-        angularAcceleration = (angularVelocity - previousAngularVelocity) / Time.fixedDeltaTime;
-        previousAngularVelocity = angularVelocity;
+        var newAngularVelocity = transform.InverseTransformVector(this.body.angularVelocity);
+        angularAcceleration = (newAngularVelocity - angularVelocity) / Time.fixedDeltaTime;
+        angularVelocity = newAngularVelocity;
     }
 
-    public HeadSensorsReading GetReading()
+    public SensorsReading GetReading()
     {
-        (var TargetDir, var TargetDistance) = this.GetDifferenceToTargetInLocalCoordinates();
-
-        return new HeadSensorsReading {
-            FloorDist = this.GetDistanceToFloor(),
-            LocalTargetDir = TargetDir,
-            TargetDist = TargetDistance,
-            UpOrientation = this.GetUpOrientation(),
-            LocalLinearSpeed = this.GetSpeed(),
-            LocalAngularSpeed = this.previousLinearVelocity,
-            LocalLinearAcceleration = this.linearAcceleration,
-            LocalAngularAcceleration = this.angularAcceleration,
+        return new SensorsReading {
+            FloorDist               = this.GetDistanceToFloor(),
+            TargetPos               = this.GetTargetPos(),
+            AccelerometerReading    = new AccelerometerReading{
+                    UpOrientation       = this.GetUpOrientation(),
+                    LinearSpeed         = this.GetSpeed(),
+                    AngularSpeed        = this.linearVelocity,
+                    LinearAcc  = this.linearAcceleration,
+                    AngularAcc = this.angularAcceleration,
+            },
+            Forces   = this.forcesCollector.AllForcesReadings
         };
     }
-    // Update is called once per frame
-    void Update()
-    {
-            
-    }
 }
 
 [Serializable]
-public struct SerdeVector2
+public struct SensorsReading
 {
-    public float x;
-    public float y;
+    public SerdeVector3         TargetPos;
+    public float                FloorDist;
+    public AccelerometerReading AccelerometerReading;
 
-    public static implicit operator Vector2(SerdeVector2 a) => new Vector2(a.x, a.y);
-    public static implicit operator SerdeVector2(Vector2 a) => new SerdeVector2{x = a.x, y = a.y};
-    public override String ToString() => $"({x}, {y})";
-
+    public List<ForceReading> Forces;
 }
 
 [Serializable]
-public struct SerdeVector3
-{
-    public float x;
-    public float y;
-    public float z;
+public struct AccelerometerReading{
+    public SerdeVector3     LinearSpeed;
+    public SerdeVector3     LinearAcc;
 
+    public SerdeVector3     AngularSpeed;
+    public SerdeVector3     AngularAcc;
 
-    public static implicit operator Vector3(SerdeVector3 a) => new Vector3(a.x, a.y, a.z);
-    public static implicit operator SerdeVector3(Vector3 a) => new SerdeVector3{x = a.x,y =  a.y,z =  a.z};
-    public override String ToString() => $"({x}, {y}, {z})";
-}
-
-[Serializable]
-public struct HeadSensorsReading
-{
-    public SerdeVector2     LocalTargetDir;
-    public float            TargetDist;
     public SerdeVector3     UpOrientation;
-    public float            FloorDist;
-
-
-    public SerdeVector3     LocalLinearSpeed;
-    public SerdeVector3     LocalLinearAcceleration;
-
-    public SerdeVector3     LocalAngularSpeed;
-    public SerdeVector3     LocalAngularAcceleration;
-    public override String ToString() => 
-$@"HeadSensorsReading {{ 
-    LocalTargetDir: {LocalTargetDir},
-    TargetDist: {TargetDist},
-    UpOrientation: {UpOrientation},
-    FloorDist: {FloorDist},
-    LocalSpeed: {LocalLinearSpeed},
-    LocalLinearAcceleration:  {LocalLinearAcceleration},
-    LocalAngularAcceleration: {LocalAngularAcceleration},
-}}";
 }

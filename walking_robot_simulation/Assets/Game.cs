@@ -5,7 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -19,24 +22,33 @@ public class Game : MonoBehaviour
     public Target               Target;
     public Slider               GameSpeedSlider;
     public float                EpisodeDuration = 10;
-    public static float         SimulationSpeed = 1.0f;
+    public static float         SimulationSpeed = 3.5f;
     float startTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        SetupRendering();
         this.agent = AgentEndpoint.Singleton;
         this.startTime = Time.time;
         this.GameSpeedSlider.minValue = 0.5f;
         this.GameSpeedSlider.maxValue = 15f ;
         this.GameSpeedSlider.value = SimulationSpeed;
+
+        StartPreparingScene();
+
         stepCount = 0;
     }
-    static void Restart()
-    {
-        var scene =  SceneManager.GetActiveScene();
-        SceneManager.LoadScene(scene.buildIndex);
+    static void SetupRendering(){
+        Screen.SetResolution(640, 640, FullScreenMode.Windowed, new RefreshRate(){numerator = 30, denominator = 1});
     }
+    static void StartPreparingScene(){
+        ;
+    }
+    void Restart(){
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    
     AgentEndpoint       agent;
     RewardCalculator    rewardCalculator;
     int                 stepCount = 0;
@@ -48,7 +60,7 @@ public class Game : MonoBehaviour
         {
             GameState CollectState() =>
                 new GameState {
-                    HeadSensorsReading = this.HeadSensors.GetReading(),
+                    SensorsReading = this.HeadSensors.GetReading(),
                     IsFinished = this.Target.IsTouchingRobot(),
                     LimbsReading = this.Actuators.GetLimbReadings(),
                     
@@ -127,7 +139,7 @@ public class Game : MonoBehaviour
         }
         if (Time.time -  startTime > EpisodeDuration) 
         {
-            Restart();
+            this.Restart();
         } 
     }
 }
@@ -146,12 +158,12 @@ $@"GameAction{{
 public struct GameState
 {
     public bool                 IsFinished;
-    public HeadSensorsReading   HeadSensorsReading;
+    public SensorsReading   SensorsReading;
     public BipedalLimbsReading  LimbsReading;
     public override string ToString() =>
 $@"GameState{{
     IsFinished: {IsFinished},
-    HeadSensorsReading: {HeadSensorsReading.ToString().Replace("\n", "\n\t")},
+    HeadSensorsReading: {SensorsReading.ToString().Replace("\n", "\n\t")},
     LimbsReading: {LimbsReading.ToString().Replace("\n", "\n\t")}
 }}";
      
@@ -176,21 +188,21 @@ public class RewardCalculator
     public RewardCalculator(GameState firstState)
     {
         previousTime = Time.time;
-        previousDistanceToTarget = firstState.HeadSensorsReading.TargetDist;
+        previousDistanceToTarget = ((Vector3)firstState.SensorsReading.TargetPos).magnitude;
     }
     public float CalculateReward(GameState gameState)
     {
         var now = Time.time;
         var rewardDeltaTime = now - previousTime;
         //var uprightError = 1 - gameState.HeadSensorsReading.UpOrientation.y;
-        var distanceFromFloorError = Mathf.Pow(Mathf.Min((Mathf.Abs(gameState.HeadSensorsReading.FloorDist - this.CorrectDistanceToFloor) / MaxDistanceToFloorDiff), 1.0f), 2);
+        var distanceFromFloorError = Mathf.Pow(Mathf.Min((Mathf.Abs(gameState.SensorsReading.FloorDist - this.CorrectDistanceToFloor) / MaxDistanceToFloorDiff), 1.0f), 2);
         var notStandingPunishment = (distanceFromFloorError) * RewardForNotStanding * rewardDeltaTime;
 
-        var currentDistanceToTarget = gameState.HeadSensorsReading.TargetDist;
+        var currentDistanceToTarget = ((Vector3)gameState.SensorsReading.TargetPos).magnitude;
         var deltaDistance = - currentDistanceToTarget + previousDistanceToTarget;
         var rewardForWalkingTorwardsTarget = deltaDistance * RewardPerMeterCloserToTarget;
 
-        var hittingHeadPunishment = (gameState.HeadSensorsReading.FloorDist < 0.35) ? RewardForHittingHead  * rewardDeltaTime : 0  ;
+        var hittingHeadPunishment = (gameState.SensorsReading.FloorDist < 0.35) ? RewardForHittingHead  * rewardDeltaTime : 0  ;
 
         previousDistanceToTarget = currentDistanceToTarget;
         previousTime = now;

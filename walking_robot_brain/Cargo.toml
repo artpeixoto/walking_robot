@@ -31,3 +31,7 @@ tracing = { version = "0.1.41", features = ["log"] }
 
 [profile.dev.package."burn"]
 opt-level = 3
+
+[profile.release]
+opt-level = 3
+debug = "full"

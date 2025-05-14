@@ -404,6 +404,8 @@
 "Assets/ChangeSpeed.cs"
 "Assets/FollowPlayer.cs"
 "Assets/Foot.cs"
+"Assets/ForcesReader.cs"
+"Assets/ForcesReadingCollector.cs"
 "Assets/Game.cs"
 "Assets/GetGameSpeed.cs"
 "Assets/LimbLink.cs"
@@ -411,6 +413,7 @@
 "Assets/RobotSensors.cs"
 "Assets/Target.cs"
 "Assets/TransformDataReader.cs"
+"Assets/Vector.cs"
 -langversion:9.0
 /deterministic
 /optimize-

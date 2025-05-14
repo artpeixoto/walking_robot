@@ -9,7 +9,7 @@ use burn::{
     module::Module,
     nn::Gelu,
     prelude::Backend,
-    record::{FullPrecisionSettings, PrettyJsonFileRecorder},
+    record::{CompactRecorder, FullPrecisionSettings, PrettyJsonFileRecorder},
 };
 use rand::TryRngCore;
 
@@ -19,24 +19,24 @@ use crate::{
 };
 
 use super::{
-    a_selector::{self, ASelector, ASelectorConfig},
-    rs_estimator::{RsEstimator, RsEstimatorConfig},
-    sa_endec::{SaDecoderConfig, SaEnDec, SaEncoder, SaEncoderConfig},
-    v_estimator::{VEstimator, VEstimatorConfig},
+    a_selector::{self, ASelector, ASelectorConfig}, q_estimator::{QEstimator, QEstimatorConfig}, rs_estimator::{RsEstimator, RsEstimatorConfig}, sa_endec::{SaDecoderConfig, SaEnDec, SaEncoder, SaEncoderConfig}, v_estimator::{VEstimator, VEstimatorConfig}
 };
 pub const MODELS_PATH: LazyLock<PathBuf> = LazyLock::new(|| PathBuf::from_str("models/").unwrap());
 pub const A_SELECTOR_MODEL_PATH: LazyLock<PathBuf> =
-    LazyLock::new(|| MODELS_PATH.join("a_selector.json"));
+    LazyLock::new(|| MODELS_PATH.join("a_selector"));
 pub const RS_ESTIMATOR_MODEL_PATH: LazyLock<PathBuf> =
-    LazyLock::new(|| MODELS_PATH.join("rs_estimator.json"));
-pub const SA_DEC_MODEL_PATH: LazyLock<PathBuf> = LazyLock::new(|| MODELS_PATH.join("sa_dec.json"));
-pub const SA_ENC_MODEL_PATH: LazyLock<PathBuf> = LazyLock::new(|| MODELS_PATH.join("sa_enc.json"));
+    LazyLock::new(|| MODELS_PATH.join("rs_estimator"));
+pub const SA_DEC_MODEL_PATH: LazyLock<PathBuf> = LazyLock::new(|| MODELS_PATH.join("sa_dec"));
+pub const SA_ENC_MODEL_PATH: LazyLock<PathBuf> = LazyLock::new(|| MODELS_PATH.join("sa_enc"));
+pub const Q_ESTIMATOR_MODEL_PATH: LazyLock<PathBuf> =
+    LazyLock::new(|| MODELS_PATH.join("q_estimator.mpk"));
+
 pub const V_ESTIMATOR_MODEL_PATH: LazyLock<PathBuf> =
     LazyLock::new(|| MODELS_PATH.join("v_estimator.json"));
 
-pub static MODELS_RECORDER: LazyLock<Mutex<PrettyJsonFileRecorder<FullPrecisionSettings>>> =
-    LazyLock::new(|| Mutex::new(PrettyJsonFileRecorder::new()));
-pub const WINDOW_SIZE: i64 = 50;
+pub static MODELS_RECORDER: LazyLock<Mutex<CompactRecorder>> =
+    LazyLock::new(|| Mutex::new(CompactRecorder::new()));
+pub const WINDOW_SIZE: i64 = 5;
 pub const ENC_STATE_SIZE: usize = 128;
 pub fn make_a_selector<B: Backend>(dev: &<B as Backend>::Device) -> ASelector<B> {
     let mut model = ASelectorConfig {
@@ -153,4 +153,28 @@ pub fn make_sa_endec<B: Backend>(dev: &<B as Backend>::Device) -> SaEnDec<B> {
         model
     };
     SaEnDec { enc: encoder, dec: decoder }
+}
+
+pub fn make_q_estimator<B: Backend>(dev: &<B as Backend>::Device) -> QEstimator<B>{
+    let model = {
+        let mut model = 
+            QEstimatorConfig{
+                initial     : vec![2048, 1024],
+                logic       : vec![1024, 512],
+                cut_through : vec![512, 512],
+                joint       : vec![1024, 1024,512,512,512, 256, 256, 256]
+            }
+            .init(dev);
+
+        if  Q_ESTIMATOR_MODEL_PATH.exists(){
+            model = model.load_file(
+                Q_ESTIMATOR_MODEL_PATH.as_path(),  
+                MODELS_RECORDER.lock().unwrap().deref(), 
+                dev
+            )
+            .unwrap();
+        }
+        model
+    };
+    model
 }

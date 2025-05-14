@@ -62,6 +62,8 @@ pub trait MultiActionTensorPolicy<B: Backend>{
 
 pub mod tree_policy;
 pub mod noisy_policy;
+pub mod nil_policy;
+pub mod q_estimator_policy;
 
 
 // let base_action_tensor = self.policy.forward(&game_state_tensor.clone().unsqueeze()).repeat_dim(0, self.actions_count);
